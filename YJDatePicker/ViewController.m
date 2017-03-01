@@ -7,8 +7,9 @@
 //
 
 #import "ViewController.h"
+#import "YJDatePickerView.h"
 
-@interface ViewController ()
+@interface ViewController ()<YJDatePickerDelegate>
 
 @end
 
@@ -17,6 +18,31 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    
+}
+
+- (IBAction)show:(id)sender {
+    YJDatePickerView *view = [YJDatePickerView pickDateWithCompletionHandle:^(NSInteger index, id  _Nullable value) {
+        
+    }];
+    view.delegate = self;
+}
+
+
+- (IBAction)showCustom:(id)sender {
+    YJDatePickerView *view = [YJDatePickerView pickCustomDataWithArray:@[@"一月", @"二月", @"三月",@"四月",@"五月",@"六月",@"七月",@"八月"] completionHandle:^(NSInteger index, id  _Nullable value) {
+        NSLog(@"block: index :%ld, %@", index, value);
+    }];
+    view.delegate = self;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+}
+
+- (void)selectedData:(id _Nullable)data sender:(YJDatePickerView * _Nonnull)aView {
+    NSLog(@"%@", data);
 }
 
 - (void)didReceiveMemoryWarning {
