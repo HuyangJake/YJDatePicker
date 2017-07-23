@@ -33,22 +33,22 @@ typedef void (^CustomCompleteHandler)(NSDictionary *_Nonnull selectedIndexDic, N
 
 @property (nonatomic, copy, nonnull) void (^customCompleteHandler)(NSDictionary *_Nonnull selectedIndexDic, NSDictionary *_Nonnull selectedValueDic);
 
-@property (nonatomic, assign) BOOL isNeedDefault;//是或否需要默认的“请选择”栏目  默认NO
+@property (nonatomic, assign) BOOL isNeedDefault;//是或否需要默认的“请选择”栏目
 
 /**
  默认选择仅日期
  */
-+ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler defaultValue:(BOOL)isDefault;
-
++ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler defaultValue:(NSArray * _Nullable)defaultValue;
 
 /**
-  传入自定义数组进行选择
-
-  @param _Nonnull 包含的数组（Component的数组）
-  @return YJDatePickerView
-  
-*/
-+ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CustomCompleteHandler _Nonnull)handler defaultValue:(BOOL)isDefault;
+ 传入自定义数组进行选择
+ 
+ @param data 包含的数组（Component的数组）
+ @param handler 回调方法
+ @param defaultValue "请选择"提示的数组
+ @return YJDatePickerView
+ */
++ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CustomCompleteHandler _Nonnull)handler defaultValue:(NSArray * _Nullable)defaultValue;
 
 
 @end

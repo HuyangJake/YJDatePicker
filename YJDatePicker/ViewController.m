@@ -24,7 +24,7 @@
 - (IBAction)show:(id)sender {
     YJDatePickerView *view = [YJDatePickerView pickDateWithCompletionHandle:^(NSInteger index, id  _Nullable value)  {
         
-    } defaultValue:YES];
+    } defaultValue:@[@"test"]];
     view.delegate = self;
 }
 
@@ -35,7 +35,7 @@
     NSArray *data3 = @[@"20岁", @"21岁", @"22岁", @"25岁", @"29岁", @"200岁"];
     YJDatePickerView *view = [YJDatePickerView pickCustomDataWithArray:@[data1, data2, data3] completionHandle:^(NSDictionary *indexDic, NSDictionary *valueDic) {
         NSLog(@"%@", indexDic);
-    } defaultValue:YES];
+    } defaultValue:@[@"选择国家", @"选择性别", @"选择年龄"]];
     view.delegate = self;
 }
 

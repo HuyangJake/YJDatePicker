@@ -20,6 +20,7 @@ static CGFloat mainViewWidth, screenWidth;
 @property (nonatomic, strong) UIPickerView *picker;
 
 @property (nonatomic, strong) NSArray *dataSource;
+@property (nonatomic, strong) NSArray *recomendData;
 
 @property (nonatomic, strong) NSMutableDictionary *selectedIndexDictionary;
 @property (nonatomic, strong) NSMutableDictionary *selectedValueDictionary;
@@ -46,10 +47,11 @@ static CGFloat mainViewWidth, screenWidth;
     return self;
 }
 
-+ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler defaultValue:(BOOL)isDefault {
++ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler defaultValue:(NSArray * _Nullable)defaultValue {
     
     YJDatePickerView *view = [[YJDatePickerView alloc] initWithFrame:kRootWindow.bounds];
-    view.isNeedDefault = isDefault;
+    view.isNeedDefault = defaultValue ? YES : NO;
+    view.recomendData = [defaultValue copy];
     view.isCustomData = NO;
     view.completeSelection = handler;
     [kRootWindow addSubview:view];
@@ -57,9 +59,10 @@ static CGFloat mainViewWidth, screenWidth;
     return view;
 }
 
-+ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CustomCompleteHandler _Nonnull)handler defaultValue:(BOOL)isDefault{
++ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CustomCompleteHandler _Nonnull)handler defaultValue:(NSArray * _Nullable)defaultValue{
     YJDatePickerView *view = [[YJDatePickerView alloc] initWithFrame:kRootWindow.bounds];
-    view.isNeedDefault = isDefault;
+    view.isNeedDefault = defaultValue ? YES : NO;
+    view.recomendData = [defaultValue copy];
     view.isCustomData = YES;
     view.customCompleteHandler = handler;
     view.dataSource = [data copy];
@@ -142,7 +145,7 @@ static CGFloat mainViewWidth, screenWidth;
     NSArray *array = self.dataSource[component];
     if (self.isNeedDefault) {
         if (row == 0) {
-            return @"请选择";
+            return self.recomendData[component];
         } else {
             if ([array[row - 1] isKindOfClass:[NSString class]]) {
                 return array[row -1];
@@ -197,7 +200,7 @@ static CGFloat mainViewWidth, screenWidth;
         [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
         [cancelBtn setFrame:CGRectMake(15, 15, 30, 20)];
         [cancelBtn.titleLabel setFont:[UIFont systemFontOfSize:14]];
-         [cancelBtn setTintColor:[UIColor lightGrayColor]];
+        [cancelBtn setTintColor:[UIColor lightGrayColor]];
         [cancelBtn addTarget:self action:@selector(dissmissView) forControlEvents:UIControlEventTouchUpInside];
         [_mainView addSubview:cancelBtn];
         
@@ -237,7 +240,7 @@ static CGFloat mainViewWidth, screenWidth;
         [_datePicker setLocale:[[NSLocale alloc]initWithLocaleIdentifier:@"zh_CN"]];
         [_datePicker setTimeZone:[NSTimeZone localTimeZone]];
         [_datePicker setDate:[NSDate date] animated:YES];
-//        [_datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
+        //        [_datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
     }
     return _datePicker;
 }
