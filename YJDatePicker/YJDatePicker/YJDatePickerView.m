@@ -76,7 +76,16 @@ static CGFloat mainViewWidth, screenWidth;
 #pragma mark - 控制数据
 
 - (void)confirmData {
-    [self checkEmptyData];
+    if ([self existEmptyData]) {
+        //存在提示语,且点击确定的时候没有选择就不进行回调
+        if (self.isNeedDefault) {
+            [self dissmissView];
+            return;
+        } else {
+            //不存在提示语，点击确定没有选择就默认使用第一条数据
+            [self checkEmptyData];
+        }
+    }
     id data = !self.isCustomData ? self.datePicker.date : self.selectedValueDictionary.allValues;
     if (self.completeSelection) {
         self.completeSelection(self.selectedIndex, data);
@@ -90,8 +99,8 @@ static CGFloat mainViewWidth, screenWidth;
     [self dissmissView];
 }
 
+//检查数据，将空数据赋值为一个条数据
 - (void)checkEmptyData {
-    
     [self.dataSource enumerateObjectsUsingBlock:^(NSArray   * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (![self.selectedIndexDictionary objectForKey:[NSString stringWithFormat:@"%ld", idx]]) {
             [self.selectedIndexDictionary setObject:obj.firstObject forKey:[NSString stringWithFormat:@"%ld", idx]];
@@ -101,6 +110,16 @@ static CGFloat mainViewWidth, screenWidth;
         }
     }];
     
+}
+
+//判断是否有为空的数据
+- (BOOL)existEmptyData {
+    for (NSInteger index = 0; index < self.dataSource.count; index ++) {
+        if (![self.selectedIndexDictionary objectForKey:[NSString stringWithFormat:@"%ld", index]]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 #pragma mark - 控制视图的展示
