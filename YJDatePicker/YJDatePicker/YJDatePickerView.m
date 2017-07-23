@@ -21,8 +21,10 @@ static CGFloat mainViewWidth, screenWidth;
 
 @property (nonatomic, strong) NSArray *dataSource;
 
-@property (nonatomic, strong) NSString *selectedData;
-@property (nonatomic, assign) NSInteger selectedIndex;
+@property (nonatomic, strong) NSMutableDictionary *selectedIndexDictionary;
+@property (nonatomic, strong) NSMutableDictionary *selectedValueDictionary;
+
+@property (nonatomic, assign) NSInteger selectedIndex;//DatePicker使用的index
 @property (nonatomic, assign) BOOL isCustomData;
 @end
 
@@ -37,14 +39,17 @@ static CGFloat mainViewWidth, screenWidth;
         mainViewHeight = screenHeight * 0.42;
         mainViewWidth = screenWidth;
         self.backgroundColor = [UIColor clearColor];
+        self.selectedIndexDictionary = [NSMutableDictionary new];
+        self.selectedValueDictionary = [NSMutableDictionary new];
         self.selectedIndex = -1;
     }
     return self;
 }
 
-+ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler {
++ (YJDatePickerView * _Nonnull)pickDateWithCompletionHandle:(CompleteSelection _Nonnull)handler defaultValue:(BOOL)isDefault {
     
     YJDatePickerView *view = [[YJDatePickerView alloc] initWithFrame:kRootWindow.bounds];
+    view.isNeedDefault = isDefault;
     view.isCustomData = NO;
     view.completeSelection = handler;
     [kRootWindow addSubview:view];
@@ -52,10 +57,11 @@ static CGFloat mainViewWidth, screenWidth;
     return view;
 }
 
-+ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CompleteSelection _Nonnull)handler {
++ (YJDatePickerView * _Nonnull)pickCustomDataWithArray:(NSArray *_Nonnull)data completionHandle:(CustomCompleteHandler _Nonnull)handler defaultValue:(BOOL)isDefault{
     YJDatePickerView *view = [[YJDatePickerView alloc] initWithFrame:kRootWindow.bounds];
+    view.isNeedDefault = isDefault;
     view.isCustomData = YES;
-    view.completeSelection = handler;
+    view.customCompleteHandler = handler;
     view.dataSource = [data copy];
     [view.picker reloadAllComponents];
     [kRootWindow addSubview:view];
@@ -67,15 +73,31 @@ static CGFloat mainViewWidth, screenWidth;
 #pragma mark - 控制数据
 
 - (void)confirmData {
-    id data = !self.isCustomData ? self.datePicker.date : self.selectedData;
-    
+    [self checkEmptyData];
+    id data = !self.isCustomData ? self.datePicker.date : self.selectedValueDictionary.allValues;
     if (self.completeSelection) {
         self.completeSelection(self.selectedIndex, data);
+    }
+    if (self.customCompleteHandler) {
+        self.customCompleteHandler([self.selectedIndexDictionary copy], [self.selectedValueDictionary copy]);
     }
     if ([self.delegate respondsToSelector:@selector(selectedData:sender:)]) {
         [self.delegate selectedData:data sender:self];
     }
     [self dissmissView];
+}
+
+- (void)checkEmptyData {
+    
+    [self.dataSource enumerateObjectsUsingBlock:^(NSArray   * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (![self.selectedIndexDictionary objectForKey:[NSString stringWithFormat:@"%ld", idx]]) {
+            [self.selectedIndexDictionary setObject:obj.firstObject forKey:[NSString stringWithFormat:@"%ld", idx]];
+        }
+        if (![self.selectedValueDictionary objectForKey:[NSString stringWithFormat:@"%ld", idx]]) {
+            [self.selectedValueDictionary setObject:obj.firstObject forKey:[NSString stringWithFormat:@"%ld", idx]];
+        }
+    }];
+    
 }
 
 #pragma mark - 控制视图的展示
@@ -101,33 +123,54 @@ static CGFloat mainViewWidth, screenWidth;
 #pragma mark - UIPickerViewDataSource
 
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
-    return 1;
+    return self.dataSource.count;
 }
 
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-    return self.dataSource.count + 1;
+    NSArray *array = self.dataSource[component];
+    if (self.isNeedDefault) {
+        return array.count + 1;
+    } else {
+        return array.count;
+    }
 }
 
 #pragma mark - UIPickerViewDelegate
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-    if (row == 0) {
-        return @"请选择";
+    NSArray *array = self.dataSource[component];
+    if (self.isNeedDefault) {
+        if (row == 0) {
+            return @"请选择";
+        } else {
+            if ([array[row - 1] isKindOfClass:[NSString class]]) {
+                return array[row -1];
+            }
+            return nil;
+        }
     } else {
-        if ([self.dataSource[row - 1] isKindOfClass:[NSString class]]) {
-            return self.dataSource[row -1];
+        if ([array[row] isKindOfClass:[NSString class]]) {
+            return array[row];
         }
         return nil;
     }
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-    if (row == 0) {
-        return;
+    NSArray *array = self.dataSource[component];
+    if (self.isNeedDefault) {
+        if (row == 0) {
+            return;
+        }
+        [self.selectedIndexDictionary setObject:[NSString stringWithFormat:@"%ld", row - 1] forKey:[NSString stringWithFormat:@"%ld", component]];
+        [self.selectedValueDictionary setObject:array[row - 1] forKey:[NSString stringWithFormat:@"%ld", component]];
+        self.selectedIndex = row - 1;
+    } else {
+        [self.selectedIndexDictionary setObject:[NSString stringWithFormat:@"%ld", row] forKey:[NSString stringWithFormat:@"%ld", component]];
+        [self.selectedValueDictionary setObject:array[row] forKey:[NSString stringWithFormat:@"%ld", component]];
+        self.selectedIndex = row;
     }
-    self.selectedData = self.dataSource[row -1];
-    self.selectedIndex = row;
 }
 
 #pragma mark - 构建视图

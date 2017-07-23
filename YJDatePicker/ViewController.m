@@ -22,17 +22,20 @@
 }
 
 - (IBAction)show:(id)sender {
-    YJDatePickerView *view = [YJDatePickerView pickDateWithCompletionHandle:^(NSInteger index, id  _Nullable value) {
+    YJDatePickerView *view = [YJDatePickerView pickDateWithCompletionHandle:^(NSInteger index, id  _Nullable value)  {
         
-    }];
+    } defaultValue:YES];
     view.delegate = self;
 }
 
 
 - (IBAction)showCustom:(id)sender {
-    YJDatePickerView *view = [YJDatePickerView pickCustomDataWithArray:@[@"一月", @"二月", @"三月",@"四月",@"五月",@"六月",@"七月",@"八月"] completionHandle:^(NSInteger index, id  _Nullable value) {
-        NSLog(@"block: index :%ld, %@", index, value);
-    }];
+    NSArray *data1 = @[@"中国", @"美国", @"日本", @"俄国", @"韩国", @"英国"];
+    NSArray *data2 = @[@"男生", @"女生"];
+    NSArray *data3 = @[@"20岁", @"21岁", @"22岁", @"25岁", @"29岁", @"200岁"];
+    YJDatePickerView *view = [YJDatePickerView pickCustomDataWithArray:@[data1, data2, data3] completionHandle:^(NSDictionary *indexDic, NSDictionary *valueDic) {
+        NSLog(@"%@", indexDic);
+    } defaultValue:YES];
     view.delegate = self;
 }
 
