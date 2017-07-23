@@ -103,7 +103,7 @@ static CGFloat mainViewWidth, screenWidth;
 - (void)checkEmptyData {
     [self.dataSource enumerateObjectsUsingBlock:^(NSArray   * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (![self.selectedIndexDictionary objectForKey:[NSString stringWithFormat:@"%ld", idx]]) {
-            [self.selectedIndexDictionary setObject:obj.firstObject forKey:[NSString stringWithFormat:@"%ld", idx]];
+            [self.selectedIndexDictionary setObject:@(0) forKey:[NSString stringWithFormat:@"%ld", idx]];
         }
         if (![self.selectedValueDictionary objectForKey:[NSString stringWithFormat:@"%ld", idx]]) {
             [self.selectedValueDictionary setObject:obj.firstObject forKey:[NSString stringWithFormat:@"%ld", idx]];
@@ -185,11 +185,11 @@ static CGFloat mainViewWidth, screenWidth;
         if (row == 0) {
             return;
         }
-        [self.selectedIndexDictionary setObject:[NSString stringWithFormat:@"%ld", row - 1] forKey:[NSString stringWithFormat:@"%ld", component]];
+        [self.selectedIndexDictionary setObject:@(row - 1) forKey:[NSString stringWithFormat:@"%ld", component]];
         [self.selectedValueDictionary setObject:array[row - 1] forKey:[NSString stringWithFormat:@"%ld", component]];
         self.selectedIndex = row - 1;
     } else {
-        [self.selectedIndexDictionary setObject:[NSString stringWithFormat:@"%ld", row] forKey:[NSString stringWithFormat:@"%ld", component]];
+        [self.selectedIndexDictionary setObject:@(row) forKey:[NSString stringWithFormat:@"%ld", component]];
         [self.selectedValueDictionary setObject:array[row] forKey:[NSString stringWithFormat:@"%ld", component]];
         self.selectedIndex = row;
     }
